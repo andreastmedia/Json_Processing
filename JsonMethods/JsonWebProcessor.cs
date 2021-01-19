@@ -7,10 +7,10 @@ namespace JsonMethods
     /// <summary>
     /// The main <see langword="class"/> that processes Json files from the web.
     /// </summary>
-    public class JsonWebProcessor
+    public static class JsonWebProcessor
     {
         /// <summary>
-        /// Loads a Json file from the web asynchronously. 
+        /// Downloads a Json file from the web asynchronously. 
         /// </summary>
         /// <param name="httpClient">The base <see langword="class"/> that sends HTTP requests and receives HTTP responses from a resource identified by a URI.</param>
         /// <param name="uri">The URI that identifies the <see cref="HttpClient"/>.</param>
@@ -18,7 +18,7 @@ namespace JsonMethods
         /// A <see cref="Task{}"/> of type <see cref="object"/>, if <see cref="HttpResponseMessage"/> was successful.<br/>
         /// Returns <see langword="null"/> otherwise.
         /// </returns>
-        public async Task<object> LoadJsonFromWeb(HttpClient httpClient, string uri)
+        public static async Task<object> DownloadJsonFromWeb(HttpClient httpClient, string uri)
         {
             HttpResponseMessage httpResponseMessage = await httpClient.GetAsync(uri);
 
@@ -34,7 +34,7 @@ namespace JsonMethods
         }
 
         /// <summary>
-        /// Loads a Json file from the web asynchronously.
+        /// Downloads a Json file from the web asynchronously.
         /// </summary>
         /// <remarks>
         /// This method is used when you have a base URI and a list of endpoints.
@@ -46,7 +46,7 @@ namespace JsonMethods
         /// A<see cref="Task{}"/> of type<see cref="object"/>, if <see cref = "HttpResponseMessage" /> was successful.<br/>
         /// Returns <see langword="null"/> otherwise.
         /// </returns>
-        public async Task<object> LoadJsonFromWeb(HttpClient httpClient, string uri, string id)
+        public static async Task<object> DownloadJsonFromWeb(HttpClient httpClient, string uri, string id)
         {
             string uriCombined = uri + "/" + id;
 

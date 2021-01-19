@@ -9,7 +9,7 @@ namespace JsonMethods
     /// <summary>
     /// The main <see langword="class"/> that processes Json files locally.
     /// </summary>
-    public class JsonFileProcessor
+    public static class JsonFileProcessor
     {
         /// <summary>
         /// Saves a Json file to a folder.
@@ -21,7 +21,7 @@ namespace JsonMethods
         /// <param name="path">The folder path where the file will be saved.</param>
         /// <param name="fileName">The name of the file without its suffix.</param>
         /// <param name="jsonInput">The <see cref="string"/> data that will be written.</param>
-        public void SaveJsonToFolder(string path, string fileName, string jsonInput)
+        public static void SaveJsonToFolder(string path, string fileName, string jsonInput)
         {
             if (Directory.Exists(path))
             {
@@ -48,7 +48,7 @@ namespace JsonMethods
         /// <param name="path">The folder path where the file is stored.</param>
         /// <param name="fileName">The name of the file.</param>
         /// <returns>A <see cref="string"/> object when path exists or <see langword="null"/> when it doesn't.</returns>
-        public string LoadJsonFromFolder(string path, string fileName)
+        public static string LoadJsonFromFolder(string path, string fileName)
         {
             if (Directory.Exists(path))
             {
@@ -76,7 +76,7 @@ namespace JsonMethods
         /// <param name="names">The <see cref="JArray"/> whose values will be used as keys.</param>
         /// <param name="ids">The <see cref="JArray"/> whose values will be used as values.</param>
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> with <see cref="string"/> keys and <see cref="int"/> values.</returns>
-        public Dictionary<string, int> CombineJArraysToDictionary(JArray names, JArray ids)
+        public static Dictionary<string, int> CombineJArraysToDictionary(JArray names, JArray ids)
         {
             if (!JArraysAreEqual(names, ids))
             {
@@ -103,7 +103,7 @@ namespace JsonMethods
         /// <param name="names">The <see cref="JArray"/> whose values will be used as keys.</param>
         /// <param name="ids">The <see cref="JArray"/> whose values will be used as values.</param>
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> with <see cref="string"/> keys and <see cref="List{T}}"/> values, where T is an <see cref="int"/>.</returns>
-        public Dictionary<string, List<int>> CombineJArraysToDictionaryOfLists(JArray names, JArray ids)
+        public static Dictionary<string, List<int>> CombineJArraysToDictionaryOfLists(JArray names, JArray ids)
         {
             if (!JArraysAreEqual(names, ids))
             {
@@ -133,7 +133,7 @@ namespace JsonMethods
         /// <param name="firstJArray">The first <see cref="JArray"/>.</param>
         /// <param name="secondJArray">The second <see cref="JArray"/>.</param>
         /// <returns><see langword="true"/> or <see langword="false"/></returns>
-        public bool JArraysAreEqual(JArray firstJArray, JArray secondJArray)
+        public static bool JArraysAreEqual(JArray firstJArray, JArray secondJArray)
         {
             if (firstJArray.Count == secondJArray.Count)
             {
@@ -154,7 +154,7 @@ namespace JsonMethods
         /// <param name="jObject">The <see cref="JObject"/> that we apply our search to.</param>
         /// <param name="propertyName">The name of the <see cref="JProperty"/> we are looking for in a <see cref="string"/> format.</param>
         /// <returns>The value of the <see cref="JProperty"/> in a <see cref="string"/> format, if we find it, or "".</returns>
-        public string FindJProperty(JObject jObject, string propertyName)
+        public static string FindJProperty(JObject jObject, string propertyName)
         {
             var properties = jObject.Descendants()
                 .OfType<JProperty>()
