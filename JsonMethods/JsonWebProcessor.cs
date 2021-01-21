@@ -10,21 +10,21 @@ using System.Threading.Tasks;
 namespace JsonMethods
 {
     /// <summary>
-    /// The main <see langword="class"/> that processes Json files from the web.
+    /// The main <see langword="class"/> that processes JSON files from the web.
     /// </summary>
     public static class JsonWebProcessor
     {
         /// <summary>
-        /// Downloads a Json file from the web asynchronously. 
+        /// Downloads a JSON file from the web asynchronously and deserializes it.
         /// </summary>
         /// <param name="httpClient">The base <see langword="class"/> that sends HTTP requests and receives HTTP responses from a resource identified by a URI.</param>
         /// <param name="uri">The URI that identifies the <see cref="HttpClient"/>.</param>
         /// <returns>
-        /// A <see cref="Task{}"/> of type <see cref="object"/>, if <see cref="HttpResponseMessage"/> was successful.<br/>
+        /// A <see cref="Task{}"/> of type <see cref="string"/>, if <see cref="HttpResponseMessage"/> was successful.<br/>
         /// Throws <see cref = "Exception" /> otherwise.
         /// </returns>
         /// <exception cref="HttpResponseMessage.ReasonPhrase"/>
-        public static async Task<object> DownloadJsonFromWeb(HttpClient httpClient, string uri)
+        public static async Task<string> DownloadJsonFromWeb(HttpClient httpClient, string uri)
         {
             HttpStatusCode[] httpStatusCodesWorthRetrying = 
                 {
@@ -49,7 +49,7 @@ namespace JsonMethods
                 if (httpResponseMessage.IsSuccessStatusCode)
                 {
                     string response = await httpResponseMessage.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject(response);
+                    return JsonConvert.DeserializeObject(response).ToString();
                 }
                 else
                 {
@@ -59,7 +59,7 @@ namespace JsonMethods
         }
 
         /// <summary>
-        /// Downloads a Json file from the web asynchronously.
+        /// Downloads a JSON file from the web asynchronously and deserializes it.
         /// </summary>
         /// <remarks>
         /// This method is used when you have a base URI and a list of endpoints.
@@ -68,11 +68,11 @@ namespace JsonMethods
         /// <param name="uri">The URI that identifies the <see cref="HttpClient"/>.</param>
         /// <param name="id">The id that will be used as an endpoint.</param>
         /// <returns>
-        /// A<see cref="Task{}"/> of type<see cref="object"/>, if <see cref = "HttpResponseMessage" /> was successful.<br/>
+        /// A<see cref="Task{}"/> of type<see cref="string"/>, if <see cref = "HttpResponseMessage" /> was successful.<br/>
         /// Throws <see cref = "Exception" /> otherwise.
         /// </returns>
         /// <exception cref="HttpResponseMessage.ReasonPhrase"/>
-        public static async Task<object> DownloadJsonFromWeb(HttpClient httpClient, string uri, string id)
+        public static async Task<string> DownloadJsonFromWeb(HttpClient httpClient, string uri, string id)
         {
             string uriCombined = uri + "/" + id;
 
@@ -99,7 +99,7 @@ namespace JsonMethods
                 if (httpResponseMessage.IsSuccessStatusCode)
                 {
                     string response = await httpResponseMessage.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject(response);
+                    return JsonConvert.DeserializeObject(response).ToString();
                 }
                 else
                 {
