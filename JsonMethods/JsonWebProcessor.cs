@@ -1,4 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
+using System;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -16,20 +21,40 @@ namespace JsonMethods
         /// <param name="uri">The URI that identifies the <see cref="HttpClient"/>.</param>
         /// <returns>
         /// A <see cref="Task{}"/> of type <see cref="object"/>, if <see cref="HttpResponseMessage"/> was successful.<br/>
-        /// Returns <see langword="null"/> otherwise.
+        /// Throws <see cref = "Exception" /> otherwise.
         /// </returns>
+        /// <exception cref="HttpResponseMessage.ReasonPhrase"/>
         public static async Task<object> DownloadJsonFromWeb(HttpClient httpClient, string uri)
         {
-            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync(uri);
+            HttpStatusCode[] httpStatusCodesWorthRetrying = 
+                {
+                    HttpStatusCode.RequestTimeout,      // 408
+                    HttpStatusCode.InternalServerError, // 500
+                    HttpStatusCode.BadGateway,          // 502
+                    HttpStatusCode.ServiceUnavailable,  // 503
+                    HttpStatusCode.GatewayTimeout       // 504
+                };
 
-            if (httpResponseMessage.IsSuccessStatusCode)
+            var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(1), retryCount: 5);
+
+            using (HttpResponseMessage httpResponseMessage = await Policy
+                .Handle<HttpRequestException>()
+                .Or<TaskCanceledException>()
+                .Or<System.IO.IOException>()
+                .Or<System.Net.Sockets.SocketException>()
+                .OrResult<HttpResponseMessage>(r => httpStatusCodesWorthRetrying.Contains(r.StatusCode))
+                .WaitAndRetryAsync(delay)
+                .ExecuteAsync(() => httpClient.GetAsync(uri)))
             {
-                string response = await httpResponseMessage.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(response);
-            }
-            else
-            {
-                return null;
+                if (httpResponseMessage.IsSuccessStatusCode)
+                {
+                    string response = await httpResponseMessage.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject(response);
+                }
+                else
+                {
+                    throw new Exception(httpResponseMessage.ReasonPhrase);
+                }
             }
         }
 
@@ -44,22 +69,42 @@ namespace JsonMethods
         /// <param name="id">The id that will be used as an endpoint.</param>
         /// <returns>
         /// A<see cref="Task{}"/> of type<see cref="object"/>, if <see cref = "HttpResponseMessage" /> was successful.<br/>
-        /// Returns <see langword="null"/> otherwise.
+        /// Throws <see cref = "Exception" /> otherwise.
         /// </returns>
+        /// <exception cref="HttpResponseMessage.ReasonPhrase"/>
         public static async Task<object> DownloadJsonFromWeb(HttpClient httpClient, string uri, string id)
         {
             string uriCombined = uri + "/" + id;
 
-            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync(uriCombined);
+            HttpStatusCode[] httpStatusCodesWorthRetrying =
+                {
+                    HttpStatusCode.RequestTimeout,      // 408
+                    HttpStatusCode.InternalServerError, // 500
+                    HttpStatusCode.BadGateway,          // 502
+                    HttpStatusCode.ServiceUnavailable,  // 503
+                    HttpStatusCode.GatewayTimeout       // 504
+                };
 
-            if (httpResponseMessage.IsSuccessStatusCode)
+            var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(1), retryCount: 5);
+
+            using (HttpResponseMessage httpResponseMessage = await Policy
+                .Handle<HttpRequestException>()
+                .Or<TaskCanceledException>()
+                .Or<System.IO.IOException>()
+                .Or<System.Net.Sockets.SocketException>()
+                .OrResult<HttpResponseMessage>(r => httpStatusCodesWorthRetrying.Contains(r.StatusCode))
+                .WaitAndRetryAsync(delay)
+                .ExecuteAsync(() => httpClient.GetAsync(uriCombined)))
             {
-                string response = await httpResponseMessage.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(response);
-            }
-            else
-            {
-                return null;
+                if (httpResponseMessage.IsSuccessStatusCode)
+                {
+                    string response = await httpResponseMessage.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject(response);
+                }
+                else
+                {
+                    throw new Exception(httpResponseMessage.ReasonPhrase);
+                }
             }
         }
     }
